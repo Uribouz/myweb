@@ -3,7 +3,7 @@ FROM golang:1.16.2 as builder
 WORKDIR /myweb
 COPY go.mod ./
 COPY go.sum ./
-COPY myweb/server.go ./
+COPY service/server.go ./
 
 RUN go mod download
 RUN GOOS=linux go build server.go
