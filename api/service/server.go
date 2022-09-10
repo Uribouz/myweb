@@ -3,31 +3,69 @@ package main
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	// _ "github.com/go-sql-driver/mysql"
+
+	"github.com/labstack/echo"
+
+	"github.com/labstack/echo/middleware"
 )
 
+type Todo struct {
+	ID        string `json:"id"`
+	TITLE     string `json:"title"`
+	COMPLETED bool   `json:"completed"`
+	SELECTED  bool   `json:"selected"`
+}
+
+// Step-5. [Backend - GO] Create GO API Server & Connect MariaDB (connect DB,config CORS,API Endpoint)
+
 func main() {
+	var todos []Todo
+	// db, err := sql.Open("mysql", "yourusername:yourpassword@/testing")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	panic(err.Error())
+	// }
+	// defer db.Close()
+	// fmt.Println("OK Connect DB")
+
+	// results, err := db.Query("SELECT * FROM todos")
+
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	panic(err.Error())
+	// }
+
+	// for results.Next() {
+	// 	var todo Todo
+
+	// 	err = results.Scan(&todo.ID, &todo.TITLE, &todo.COMPLETED, &todo.SELECTED)
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		panic(err.Error())
+	// 	}
+
+	// 	todos = append(todos, todo)
+
+	// }
+
+	//Mock
+	todos = []Todo{
+		{"1", "Wakeup", true, false},
+		{"2", "Workout", false, true},
+		{"3", "Chores", false, false},
+	}
+
 	e := echo.New()
-	// e.POST("/users", saveUser)
-	e.GET("/users/:id", getUser)
-	// e.PUT("/users/:id", updateUser)
-	// e.DELETE("/users/:id", deleteUser)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+	}))
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
+		u := todos
+		return c.JSON(http.StatusOK, u)
 	})
 	e.Logger.Fatal(e.Start(":1323"))
-}
-
-// e.GET("/users/:id", getUser)
-func getUser(c echo.Context) error {
-	// User ID from path `users/:id`
-	id := c.Param("id")
-	return c.String(http.StatusOK, id)
-}
-
-func show(c echo.Context) error {
-	// Get team and member from the query string
-	team := c.QueryParam("team")
-	member := c.QueryParam("member")
-	return c.String(http.StatusOK, "team:"+team+", member:"+member)
 }

@@ -1,8 +1,11 @@
 import React, { Component } from "react";
 import "./App.css";
-import { Input, Icon, Button, Card, List, Checkbox } from "antd";
+import { Input, Button, Card, List, Checkbox } from "antd";
+import { CloseCircleOutlined } from "@ant-design/icons";
 
-// Step-3. [Frontend - React] Create Component and State
+const URL = "http://localhost:1323/";
+
+// Step-2. Setup AntDesign
 
 class App extends Component {
   constructor(props) {
@@ -10,22 +13,32 @@ class App extends Component {
 
     this.state = {
       inputText: "",
-      todos: [
-        {
-          id: "1",
-          title: "Title1",
-          completed: true,
-          selected: true
-        },
-        {
-          id: "2",
-          title: "Title2",
-          completed: false,
-          selected: false
-        }
-      ],
-      isLoading: false
+      todos: [],
+      isLoading: true
     };
+  }
+
+  componentDidMount() {
+    this.getTodos();
+  }
+
+  async fetchAsync(url, opts) {
+    this.setState({ isLoading: true });
+
+    const resp = await fetch(url, opts);
+
+    if (resp.status !== 200) {
+      return;
+    }
+
+    this.setState({ isLoading: false });
+    return resp.json();
+  }
+
+  async getTodos() {
+    let todos = await this.fetchAsync(URL);
+
+    this.setState({ todos });
   }
 
   render() {
@@ -77,8 +90,7 @@ class App extends Component {
             renderItem={todo => (
               <List.Item
                 actions={[
-                  <Icon
-                    type="close-circle"
+                  <CloseCircleOutlined
                     style={{ fontSize: 16, color: "rgb(255, 145, 0)" }}
                   />
                 ]}
